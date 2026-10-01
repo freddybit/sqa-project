@@ -1,0 +1,32 @@
+name: Notificar a Teams
+
+on:
+  issues:
+    types: [opened, closed]
+  push:
+    branches: [main]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enviar Adaptive Card a Teams
+        run: |
+          curl -H "Content-Type: application/json" -X POST -d '{
+            "type": "AdaptiveCard",
+            "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+            "version": "1.4",
+            "body": [
+              {
+                "type": "TextBlock",
+                "text": "🐙 Evento en GitHub: ${{ github.repository }}",
+                "weight": "Bolder",
+                "size": "Medium"
+              },
+              {
+                "type": "TextBlock",
+                "text": "Acción: ${{ github.event_name }} por ${{ github.actor }}",
+                "wrap": true
+              }
+            ]
+          }' "${{ secrets.TEAMS_WEBHOOK_URL }}"
